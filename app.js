@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+
+
 const config = require("./config.json");
 
 //== connect to database
@@ -9,6 +11,7 @@ const mongoURI =
 
 let mongoose = require("mongoose");
 const Leaderboard = require("./model");
+
 
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
@@ -29,6 +32,24 @@ app.get("/", (req, res) => {
 });
 
 // your code here!
+  app.get("/topRankings", async (req, res) => {
+  try {
+    let limit = parseInt(req.query.limit);
+    let offset = parseInt(req.query.offset);
+
+    // defaults
+    if (isNaN(limit)) limit = onePageArticleCount;
+    if (isNaN(offset)) offset = 0;
+
+    const rankings = await Leaderboard.find()
+      .skip(offset)
+      .limit(limit);
+
+    res.status(200).json(rankings);
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 // ==end==
 
